@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
 from django.views import View
-from .models import Product
+from .models import Product,Cart
 from django.template.defaultfilters import slugify
 from .forms import CustomerRegistrationForm, CustomerProfileForm, Customer
 from django.contrib import messages
+from django.http import HttpResponse
 
 def home(request):
     return render(request, "app/home.html")
@@ -24,13 +25,10 @@ class CategoryView(View):
 
 class CategoryTitle(View):
     def get(self, request, val):
-        product = Product.objects.filter(title__iexact=val)
-        if product.exists():
-            category = product[0].category
-            titles = Product.objects.filter(category=category).values('title')
-            return render(request, "app/category.html", {'product': product, 'title': titles})
-        else:
-            return render(request, "app/category.html", {'product': [], 'title': []})
+        product = Product.objects.filter(title=val)
+        title = Product.objects.filter(category=product[0].category).values('title')
+        return render(request, 'app/category.html', locals())
+       
 
 class ProductDetail(View):
     def get(self, request, pk):
@@ -40,13 +38,15 @@ class ProductDetail(View):
 class CustomerRegistrationView(View):
     def get(self, request):
         form = CustomerRegistrationForm()
-        return render(request, "app/customerregistration.html", {'form': form})
+        return render(request, "app/customerregistration.html", locals())
 
     def post(self, request):
         form = CustomerRegistrationForm(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, "Congratulations! User Registered Successfully")
+            return redirect(request.path) 
+           
         else:
             messages.warning(request, "Invalid Input Data")
             return render(request, 'app/customerregistration.html', locals())
@@ -98,3 +98,20 @@ class updateAddress(View):
         else:
             messages.warning(request, "Invalid Input Data")      
         return redirect("address")
+    
+def add_to_cart(request):
+    user =request.user
+    product_id = request.POST.get('prod_id')
+    product = Product.objects.get(id=product_id)
+    Cart(user=user,product=product).save()
+    return redirect('/cart')
+
+def show_cart(request):
+    user = request.user
+    cart = Cart.objects.filter(user=user)
+    amount = 0
+    for p in cart:
+        value = p.quantity * p.product.discounted_price
+        amount = amount + value
+    totalamount = amount + 40
+    return render(request, 'app/addtocart.html',locals())

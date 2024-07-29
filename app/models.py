@@ -54,24 +54,15 @@ CATEGORY_CHOICES=(
 
 
 class Product(models.Model):
-    title = models.CharField(max_length=100)
-    slug = models.SlugField(max_length=100, unique=True, blank=True)
-    selling_price = models.FloatField()
-    discounted_price = models.FloatField()
+    title = models.CharField(max_length=200)
     description = models.TextField()
-    composition = models.TextField(default='')
-    prodapp = models.TextField(default='')
-    category = models.CharField(choices=CATEGORY_CHOICES, max_length=2)
-    product_image = models.ImageField(upload_to='product')
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title)
-        super(Product, self).save(*args, **kwargs)
+    discounted_price = models.DecimalField(max_digits=10, decimal_places=2)
+    category = models.CharField(max_length=100)
+    product_image = models.ImageField(upload_to='products/')
+    slug = models.SlugField(max_length=100, unique=True, blank=True)
 
     def __str__(self):
         return self.title
-
     
     
 class Customer(models.Model):
@@ -84,3 +75,13 @@ class Customer(models.Model):
     state = models.CharField(choices=STATE_CHOICES, max_length=100)
     def __str__(self):
         return self.name   
+    
+class Cart(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    product = models.ForeignKey(Product,on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    
+    @property
+    def total_cost(self):
+       return self.quantity * self.product.discounted_price
+    
