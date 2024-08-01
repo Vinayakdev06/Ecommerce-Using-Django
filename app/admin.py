@@ -1,6 +1,9 @@
 from django.contrib import admin
 from . models import Product
-from .models import Customer, Product, Cart
+from .models import Customer, Product, Cart, Wishlist,Payment, OrderPlaced
+from django.utils.html import format_html
+from django.urls import reverse
+from django.contrib.auth.models import Group
 
 # Register your models here.
 
@@ -14,4 +17,34 @@ class CustomerModelAdmin(admin.ModelAdmin):
     
 @admin.register(Cart)
 class CartModelAdmin(admin.ModelAdmin):
-    list_display = ['id','user','product','quantity']
+    list_display = ['id','user','products','quantity']
+    def products(self,obj):
+        link = reverse('admin:app_product_change',args=[obj.product.pk])
+        return format_html('<a href="{}">{}</a>',link, obj.product.title)
+    
+@admin.register(Payment)    
+class PaymentModelAdmin(admin.ModelAdmin):
+    list_display = ['id','user','amount','razorpay_order_id','razorpay_payment_status','razorpay_payment_id','paid']
+    
+@admin.register(OrderPlaced)
+class OrderPlaceModelAdmin(admin.ModelAdmin):
+    list_display = ['id','user','customers','products','quantity','ordered_date','status','payments']
+    def customers(self,obj):
+        link = reverse('admin:app_customer_change',args=[obj.product.pk])
+        return format_html('<a href="{}">{}</a>',link, obj.customer.name)  
+    def products(self,obj):
+        link = reverse('admin:app_product_change',args=[obj.product.pk])
+        return format_html('<a href="{}">{}</a>',link, obj.product.title)  
+    def payments(self,obj):
+        link = reverse('admin:app_payment_change',args=[obj.product.pk])
+        return format_html('<a href="{}">{}</a>',link, obj.payment.razorpay_payment_id)
+    
+
+@admin.register(Wishlist) 
+class WishlistModelAdmin(admin.ModelAdmin):
+   list_display = ['id','user','products'] 
+   def products(self,obj):
+        link = reverse('admin:app_product_change',args=[obj.product.pk])
+        return format_html('<a href="{}">{}</a>',link, obj.product.title)   
+    
+admin.site.unregister(Group)    

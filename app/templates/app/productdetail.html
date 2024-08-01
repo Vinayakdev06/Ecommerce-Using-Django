@@ -19,13 +19,25 @@
                 <li>{{ product.description }}</li>
             </ul>
             
-            <form action="{% url 'add_to_cart' %}" method="post" class="d-inline">
-                {% csrf_token %}
-                <input type="hidden" name="prod_id" value="{{ product.id }}">
-                <button type="submit" class="btn btn-primary shadow px-5 py-2">Add to Cart</button>
-            </form>
-        
-            <a href="{% url 'showcart' %}" class="btn btn-warning shadow px-5 py-2 ms-4 ">Buy Now</a>
+            <div class="d-flex align-items-center">
+                <form action="{% url 'add_to_cart' %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="prod_id" value="{{ product.id }}">
+                    <button type="submit" class="btn btn-primary shadow  py-2">Add to Cart</button>
+                </form>
+            
+                <a href="{% url 'showcart' %}" class="btn btn-warning shadow px-5 py-2 ms-4">Buy Now</a>
+                
+                {% if wishlist %}
+                <button type="button" class="minus-wishlist btn btn-danger shadow px-5 py-2 ms-4" data-pid="{{ product.id }}">
+                    <i class="fas fa-heart fa-lg"></i>
+                </button>
+                {% else %}
+                <button type="button" class="plus-wishlist btn btn-success shadow px-5 py-2 ms-4" data-pid="{{ product.id }}">
+                    <i class="fas fa-heart fa-lg"></i>
+                </button>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
