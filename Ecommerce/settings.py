@@ -129,5 +129,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 RAZOR_KEY_ID = 'rzp_test_7ElgEROM3fx7Tl'
 RAZOR_KEY_SECRET ='jkpT0cP3qs1vDNUQCNH2Gpig'
 
-STATICFILES_DIRS = os.path.join(BASE_DIR, 'static'),
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles build", "static")
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles_build", "static")
